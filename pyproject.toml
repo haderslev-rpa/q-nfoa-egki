@@ -1,22 +1,22 @@
 [project]
-name = "q-skabelon-object"
+name = "q-nfoa-egki"
 version = "0.1.0"
-description = "object skabelon"
+description = "Login til NetForvaltning Offentligt Arrangement"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "automation-server-client",
-    "q-haderslev-vbo",
-    "requests>=2.31.0",
+    "playwright>=1.59.0",
+    "q-outlook-api",
 ]
 
 [tool.uv.sources]
 automation-server-client = { git = "https://github.com/odense-rpa/automation-server-client.git", tag = "v0.3.0" }
-q-haderslev-vbo = { git = "https://github.com/haderslev-rpa/q-haderslev-vbo.git", branch = "main" }
+q-outlook-api = { git = "https://github.com/haderslev-rpa/q-outlook-api.git", branch = "main" }
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["q_skabelon_object"] #Husk det "ikke" skal være bindestreg
+packages = ["q_nfoa_egki"]
