@@ -6,8 +6,6 @@ from q_nfoa_egki.functionality.case_data import (
     get_case_data,
 )
 from q_nfoa_egki.functionality.hoering import (
-    HearingParty,
-    HearingResult,
     Hoeringspart,
     Hoeringsresultat,
     configure_hearing,
@@ -19,12 +17,12 @@ from q_nfoa_egki.functionality.login import (
 from q_nfoa_egki.functionality.new_cases import (
     get_new_case_urls,
 )
-from q_nfoa_egki.models import NfoaCaseLink
+from q_nfoa_egki.models import (
+    NfoaCaseLink,
+)
 
 
 __all__ = [
-    "HearingParty",
-    "HearingResult",
     "Hoeringspart",
     "Hoeringsresultat",
     "NfoaAttachment",
