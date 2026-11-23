@@ -532,15 +532,16 @@ async def _read_case_tabs(
     Returnerer:
         Dictionary opdelt efter fanenavn.
     """
+
     result = await page.evaluate(
-        """
+        r"""
         () => {
             const clean = value => (
                 value ?? ""
             )
                 .toString()
-                .replace(/\\u00a0/g, " ")
-                .replace(/\\s+/g, " ")
+                .replace(/\u00a0/g, " ")
+                .replace(/\s+/g, " ")
                 .trim();
 
             const controlValue = control => {
@@ -550,8 +551,7 @@ async def _read_case_tabs(
 
                 if (control.tagName === "SELECT") {
                     return clean(
-                        control.selectedOptions?.[0]
-                            ?.textContent
+                        control.selectedOptions?.[0]?.textContent
                         || control.value
                     );
                 }
@@ -585,7 +585,6 @@ async def _read_case_tabs(
                     + "button, script, style"
                 ).forEach(
                     item => item.remove()
- )
                 );
 
                 return clean(
@@ -597,7 +596,8 @@ async def _read_case_tabs(
             const readTable = table => {
                 const heading = clean(
                     table.querySelector(
-                        ".headline                   )?.innerText
+                        ".headline"
+                    )?.innerText
                     || table.querySelector(
                         ".headline"
                     )?.textContent
@@ -610,11 +610,9 @@ async def _read_case_tabs(
                 const fields = [];
                 const rows = [];
 
-                const tableRows = (
-                    table.querySelectorAll(
-                        ":scope > tbody > tr, "
-                        + ":scope > tr"
-                    )
+                const tableRows = table.querySelectorAll(
+                    ":scope > tbody > tr, "
+                    + ":scope > tr"
                 );
 
                 for (const row of tableRows) {
@@ -648,19 +646,13 @@ async def _read_case_tabs(
                                 )
                             );
 
-                            const controlValues = (
-                                controls
-                                    .map(controlValue)
-                                    .filter(Boolean)
-                            );
+                            const controlValues = controls
+                                .map(controlValue)
+                                .filter(Boolean);
 
-                            if (
-                                controlValues.length
-                            ) {
-                                return (
-                                    controlValues.join(
-                                        " | "
-                                    )
+                            if (controlValues.length) {
+                                return controlValues.join(
+                                    " | "
                                 );
                             }
 
@@ -673,31 +665,25 @@ async def _read_case_tabs(
                     }
 
                     if (values.length >= 2) {
-                        const label = (
-                            values[0]
-                                .replace(/:$/, "")
-                                .trim()
-                        );
+                        const label = values[0]
+                            .replace(/:$/, "")
+                            .trim();
 
-                        const value = (
-                            values
-                                .slice(1)
-                                .filter(Boolean)
-                                .join(" | ")
-                        );
+                        const value = values
+                            .slice(1)
+                            .filter(Boolean)
+                            .join(" | ");
 
                         if (
                             label
                             && value
                             && label !== value
-                            && !label.includes(
-                                "Rediger"
-                            )
+                            && !label.includes("Rediger")
                         ) {
                             fields.push(
                                 {
                                     label,
-                                    value
+                                    value,
                                 }
                             );
                         }
@@ -707,23 +693,19 @@ async def _read_case_tabs(
                 return {
                     heading,
                     fields,
-                    rows
+                    rows,
                 };
             };
 
             const tabs = {};
 
-            const tabItems = (
-                document.querySelectorAll(
-                    "#tabs > ul > li"
-                )
+            const tabItems = document.querySelectorAll(
+                "#tabs > ul > li"
             );
 
             for (const tabItem of tabItems) {
-                const link = (
-                    tabItem.querySelector(
-                        "a[href^='#']"
-                    )
+                const link = tabItem.querySelector(
+                    "a[href^='#']"
                 );
 
                 if (!link) {
@@ -735,19 +717,23 @@ async def _read_case_tabs(
                     || link.textContent
                 );
 
-                const panelSelector = (
-                    link.getAttribute("href")
+                const panelSelector = link.getAttribute(
+                    "href"
                 );
 
                 if (!panelSelector) {
                     continue;
                 }
 
-                const panel = (
-                    document.querySelector(
+                let panel = null;
+
+                try {
+                    panel = document.querySelector(
                         panelSelector
-                    )
-                );
+                    );
+                } catch {
+                    continue;
+                }
 
                 if (!tabName || !panel) {
                     continue;
@@ -787,7 +773,7 @@ async def _read_case_tabs(
                                         ".optionAnswer"
                                     )
                                     ?.innerText
-                            )
+                            ),
                         })
                     )
                     .filter(
@@ -811,29 +797,26 @@ async def _read_case_tabs(
                             const groupQuestions = (
                                 content
                                 ? [
-                                    ...content
-                                        .querySelectorAll(
-                                            ".optionQuestionTD"
-                                        )
+                                    ...content.querySelectorAll(
+                                        ".optionQuestionTD"
+                                    )
                                 ]
                                     .map(
                                         container => ({
-                                            question:
-                                                clean(
-                                                    container
-                                                        .querySelector(
-                                                            ".optionQuestionText"
-                                                        )
-                                                        ?.innerText
-                                                ),
-                                            answer:
-                                                clean(
-                                                    container
-                                                        .querySelector(
-                                                            ".optionAnswer"
-                                                        )
-                                                        ?.innerText
-                                                )
+                                            question: clean(
+                                                container
+                                                    .querySelector(
+                                                        ".optionQuestionText"
+                                                    )
+                                                    ?.innerText
+                                            ),
+                                            answer: clean(
+                                                container
+                                                    .querySelector(
+                                                        ".optionAnswer"
+                                                    )
+                                                    ?.innerText
+                                            ),
                                         })
                                     )
                                     .filter(
@@ -850,8 +833,7 @@ async def _read_case_tabs(
                                     group.innerText
                                     || group.textContent
                                 ),
-                                questions:
-                                    groupQuestions
+                                questions: groupQuestions,
                             };
                         }
                     )
@@ -870,10 +852,8 @@ async def _read_case_tabs(
                     .map(
                         control => ({
                             id: control.id || "",
-                            name:
-                                control.name || "",
-                            value:
-                                controlValue(control)
+                            name: control.name || "",
+                            value: controlValue(control),
                         })
                     )
                     .filter(
@@ -885,8 +865,7 @@ async def _read_case_tabs(
                     groups,
                     questions,
                     textareas,
-                    visible_text:
-                        directText(panel)
+                    visible_text: directText(panel),
                 };
             }
 
@@ -899,8 +878,6 @@ async def _read_case_tabs(
         return {}
 
     return result
-
-
 # ------------------------------------------------------------
 # BILAGSFANE
 # ------------------------------------------------------------
